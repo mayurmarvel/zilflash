@@ -2,7 +2,8 @@ var ContractAddress;
 var Zilliqa;
 var MultiSenderContract;
 var oracleAddr;
-let list={wallets:[], tokens:[]}
+let list={wallets:[], tokens:[]} ;
+let arrTest = [] ;
 
 
 
@@ -13,7 +14,7 @@ if (typeof window.zilPay !== 'undefined') {
    // document.getElementById("createDepositTX").addEventListener("click", setupTransaction);
     console.log("ZilPay Walletttttttttt Detected");
      zilliqa = window.zilPay;
-     Zilliqa = window.zilPay;
+ Zilliqa = window.zilPay;
     utils = zilPay.utils;
     contractsUtils = zilPay.contracts;
     if (!zilPay.wallet.isConnect) {
@@ -26,8 +27,11 @@ if (typeof window.zilPay !== 'undefined') {
         // document.getElementById("CurrentUsedAccount").innerHTML = txt;
         console.log(txt);
         });
-        
-          ContractAddress = "zil1lf8awxf9fg0cdfp2m5jnlc2nmt8chtp3wgx6gp";
+  
+     //Old address
+    //ContractAddress = "zil1lf8awxf9fg0cdfp2m5jnlc2nmt8chtp3wgx6gp";
+    //new address
+      ContractAddress = "zil1pf56rsqv5rtshekktd75m0rmdp9hrg0zjc22kn";  
       
           MultiSenderContract = Zilliqa.contracts.at(ContractAddress);
     }
@@ -58,9 +62,9 @@ function test(){
        console.log(txt);
         // Display result declare section only to oracle address
         // if(oracleAddr == account.base16){
-            // document.getElementById("forOracle").style.display = "";
+          // document.getElementById("forOracle").style.display = "";
         // }else{
-            // document.getElementById("forOracle").style.visibility = "hidden";
+          // document.getElementById("forOracle").style.visibility = "hidden";
         // }
       });
 
@@ -131,93 +135,221 @@ function test(){
 // Call to multiSendV3 transition
 // var recipients = ["0x78eb69306AEf70d195D2eE6B84755A2234135d18","0x78eb69306AEf70d195D2eE6B84755A2234135d18"];
 // var amounts = "000000000000000000000000000001000000000000_000000000000000000000000000001000000000000";
-function multisend(){
-    // console.log(qId);
-    // var userResp = prompt("Pl enter answer for QId "+qId+":");
-    // if(userResp){
-        var recipients = list.wallets ;
-        var amounts = list.tokens ;
-        // ===========================================================
-                            amountsCopy = [];
+  function  multisend(){
+   console.log("inside multisend Functionnnnnnnnnnnnn");
+  // var userResp = prompt("Pl enter answer for QId "+qId+":");
+  // if(userResp){
+  var recipients = list.wallets ;
+  var amounts = list.tokens ;
+  var output = [];
+  var totalAmount = 0 ;
+  
+  
+  // =================Adding leading zeros==========================================
+            // amountsCopy = [];
 
-                for (i = 0; i < amounts.length; i++) {
-                  
-                  temp = amounts[i];
-                  temp = temp * 1000000000000 ;
-                  for (var j = temp.toString().length; j <42; j++) {
-                    
-                    temp = "0" + temp;
-                    
-                    amountsCopy[i] = temp;
-                  }
-                 
+      // for (i = 0; i < amounts.length; i++) {
+        
+        // temp = amounts[i];
+        // temp = temp * 1000000000000 ;
+        // for (var j = temp.toString().length; j <42; j++) {
+        
+        // temp = "0" + temp;
+        
+        // amountsCopy[i] = temp;
+        // //console.log(temp);
+        // }
+       
+       // // to calculate the total amount of zil needed to be transferred
+                // totalAmount = totalAmount + parseInt(amountsCopy[i]) ;
+      
+      // }
+               // amounts = [] ;
+       // //amounts = amountsCopy.join();
+        // amounts = amountsCopy;
+                // console.log("amount copy " +amountsCopy);
+      // console.log("recipients" +recipients);
+      // console.log("amounts " + amounts);
+      // console.log("TotalAmount " + totalAmount);
+  // =============================================================
+  
+  
+        // =================Alternative of above code (Adding leading zeros) 10/6/2021==========================================
+            amountsCopy = [];
 
-                
-                }
+      for (i = 0; i < amounts.length; i++) {
+        
+        //temp = amounts[i];
+        temp = Zilliqa.utils.units.toQa(amounts[i], Zilliqa.utils.units.Units.Zil) ;   //Zil to Qa
+        // for (var j = temp.toString().length; j <42; j++) {
+        
+         temp = "0" + temp;
+        
+        amountsCopy[i] = temp;
+        //console.log(temp);
+        // }
+       
+       // to calculate the total amount of zil needed to be transferred
+                totalAmount = totalAmount + parseInt(amountsCopy[i]) ;
+      
+      }
                amounts = [] ;
-               amounts = amountsCopy.join();
-                console.log(amountsCopy);
-        // =============================================================
-        const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
-        
-        
+       //amounts = amountsCopy.join();
+        amounts = amountsCopy;
+                console.log("amount copy " +amountsCopy);
+      console.log("recipients" +recipients);
+      console.log("amounts " + amounts);
+      console.log("TotalAmount " + totalAmount);
+  // =============================================================
+  
+  
+  //=============json format (final implementation)===========================
+  
+  
+  
+  
+                  
+                  // Looping to get each walt and amnt to get json
+            for (i=0; i<recipients.length; i++) {
 
-        MultiSenderContract.call('multiSendV3',[{
-            vname: "recipients",
-            type: "List(ByStr20)",
-            value: recipients
-        },{
-            vname: "amounts",
-            type: "String",
-            value: amounts
-        }],
-        {
-          gasPrice: gasPrice,
-          gasLimit: Zilliqa.utils.Long.fromNumber(50000)
-        });
+              
+                           
+              var arr = {
+                "constructor" : "Pair",
+                "argtypes" : ["ByStr20","Uint128"],
+                "arguments": [recipients[i],amounts[i]], 
+                
+
+              }
+                               console.log( "amoiunt "+amounts[i]);
+                console.log( "recipient "+recipients[i]);
+              console.log(arr);
+
+               // to store every iteration objects to an array
+               
+
+              output.push(arr);
+              
+              
+                
+
+              } 
+              
+              console.log(output);
+
+              //  Loop part end
+                  
+                  
+  
+  
+  
+  //========================================
+  
+  
+  
+  
+  
+  
+  const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
+  
+  //commenting for testing below code 27/6/2021
+  MultiSenderContract.call('multiSendV6',[{
+    vname: "recipients",
+    type: "List(Pair(ByStr20)(Uint128))",
+    value: output
+  }],
+  {  
+    amount: totalAmount,
+    gasPrice: gasPrice,
+    gasLimit: Zilliqa.utils.Long.fromNumber(50000)
+  });
+
+  
+  // const callTx = await MultiSenderContract.call('multiSendV6',[{
+  //   vname: "recipients",
+  //   type: "List(Pair(ByStr20)(Uint128))",
+  //   value: output
+  // }],
+  // {  
+  //   amount: totalAmount,
+  //   gasPrice: gasPrice,
+  //   gasLimit: Zilliqa.utils.Long.fromNumber(50000)
+  // },
+  // 33,
+  // 1000,
+  // false,);
+     
+  
+  
+  //     console.log("hellllllllllllllllllllooooo"+JSON.stringify(callTx.receipt, null, 4));
+  //     console.log("tesssssst"+callTx.result);
+  //     alert("transacton confirmed");
+  //     break;
+   
+  
+
+  // MultiSenderContract.call('multiSendV3',[{
+    // vname: "recipients",
+    // type: "List(ByStr20)",
+    // value: recipients
+  // },{
+    // vname: "amounts",
+    // type: "String",
+    // value: amounts
+  // }],
+  // {
+    // gasPrice: gasPrice,
+    // gasLimit: Zilliqa.utils.Long.fromNumber(50000)
+  // });
        
   
-    // }
+  // }
+      
+      
+output = [] ;
+list.wallets = [];
+list.tokens = [] ;
+totalAmount = 0 ;
 }
 
 //Call to resultDeclartion transition
 // function resultDeclartion(qId){
-    // var userResp = prompt("Pl enter answer for QId "+qId+":");
-    // if(userResp){
-        // const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
+  // var userResp = prompt("Pl enter answer for QId "+qId+":");
+  // if(userResp){
+  // const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
 
-        // MultiSenderContract.call('resultDeclartion',[{
-            // vname: "qId",
-            // type: "Uint32",
-            // value: ""+qId
-        // },{
-            // vname: "userResp",
-            // type: "String",
-            // value: userResp
-        // }],
-        // {
-          // gasPrice: gasPrice,
-          // gasLimit: Zilliqa.utils.Long.fromNumber(25000)
-        // });
-    // }
+  // MultiSenderContract.call('resultDeclartion',[{
+    // vname: "qId",
+    // type: "Uint32",
+    // value: ""+qId
+  // },{
+    // vname: "userResp",
+    // type: "String",
+    // value: userResp
+  // }],
+  // {
+    // gasPrice: gasPrice,
+    // gasLimit: Zilliqa.utils.Long.fromNumber(25000)
+  // });
+  // }
 // }
 
 //Call to redeem transition
 // function redeem(){
-    // var qId = prompt("Pl enter QId to redeem:");
-    // if(qId){
-        // const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
+  // var qId = prompt("Pl enter QId to redeem:");
+  // if(qId){
+  // const gasPrice = Zilliqa.utils.units.toQa('1000', Zilliqa.utils.units.Units.Li);
 
-        // MultiSenderContract.call('redeem',[{
-            // vname: "qId",
-            // type: "Uint32",
-            // value: ""+qId
-        // }],
-        // {
-          // gasPrice: gasPrice,
-          // gasLimit: Zilliqa.utils.Long.fromNumber(25000)
-        // });
-    // }
+  // MultiSenderContract.call('redeem',[{
+    // vname: "qId",
+    // type: "Uint32",
+    // value: ""+qId
+  // }],
+  // {
+    // gasPrice: gasPrice,
+    // gasLimit: Zilliqa.utils.Long.fromNumber(25000)
+  // });
+  // }
 // }
 
 // Code to upload csv
@@ -233,6 +365,9 @@ if (regex.test(fileUpload.value.toLowerCase())) {
             var rows = e.target.result.split("\n");
             for (var i = 0; i < rows.length; i++) {
                 var cells = rows[i].split(",");
+      //Added for testing 12/6/2021 wallets and tokens combined
+      arrTest.push(cells);
+      //============
                 if (cells.length > 1) {
                     list.wallets.push(cells[0].trim());
                     list.tokens.push(cells[1].trim());
@@ -243,12 +378,34 @@ if (regex.test(fileUpload.value.toLowerCase())) {
                     }
                 }
             }
-            var dvCSV = document.getElementById("dvCSV");
-            dvCSV.innerHTML = "";
-            dvCSV.appendChild(table);
-            console.log(list);
-            document.getElementById('wallet').value = list.wallets.join(',');
-            document.getElementById('amounts').value = list.tokens.join(',')
+            // var dvCSV = document.getElementById("dvCSV");
+            // dvCSV.innerHTML = "";
+            // dvCSV.appendChild(table);
+            // console.log(list);
+            // document.getElementById('wallets').value = list.wallets.join(',');
+            // document.getElementById('amounts').value = list.tokens.join(',');
+    // Added for testing to combine list.wallets and list.tokens array
+    
+    document.getElementById('walletAmount').value = arrTest;
+   
+    //Ahmed Modified showing count & zil count
+
+  
+    let addressCount; 
+    let zilCount = 0;
+    for (let i = 0 ; i < (arrTest.length - 1) ; i++ ){
+
+        addressCount = i + 1
+        //if (i = 4) {continue} 
+        zilCount += parseFloat(arrTest[i][1])
+        
+    }
+    console.log(addressCount)
+    console.log(zilCount.toFixed(2))
+
+    document.getElementById('AddCount').textContent ="Total Wallets = " + addressCount
+    document.getElementById('Zil').textContent ="Total Tokens = " + zilCount.toFixed(2)
+
         }
         reader.readAsText(fileUpload.files[0]);
     } else {
